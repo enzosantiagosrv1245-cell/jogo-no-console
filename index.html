@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Console - Adventure Quest</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px #00ff00;
+        }
+        
+        h1 {
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00ff00; }
+            to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        code {
+            background: rgba(0, 255, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 ADVENTURE QUEST 🎮</h1>
+        <p>Bem-vindo ao Adventure Quest!</p>
+        <p>Um RPG completo que roda no console do navegador.</p>
+        
+        <div class="instructions">
+            <h3>🎯 Como Jogar:</h3>
+            <p>1. Pressione <code>F12</code> para abrir o console</p>
+            <p>2. Digite <code>iniciarJogo()</code> e pressione Enter</p>
+            <p>3. Use os comandos mostrados para jogar!</p>
+            <br>
+            <p><strong>Comandos principais:</strong></p>
+            <p><code>status()</code> - Ver suas estatísticas</p>
+            <p><code>explorar()</code> - Explorar uma área</p>
+            <p><code>lutar()</code> - Lutar contra inimigos</p>
+            <p><code>descansar()</code> - Recuperar vida</p>
+            <p><code>loja()</code> - Visitar a loja</p>
+            <p><code>inventario()</code> - Ver seus itens</p>
+        </div>
+    </div>
+
+    <script>
+        // Sistema do Jogo Adventure Quest
+        let jogador = {
+            nome: "",
+            nivel: 1,
+            vida: 100,
+            vidaMax: 100,
+            mana: 50,
+            manaMax: 50,
+            forca: 10,
+            defesa: 5,
+            experiencia: 0,
+            expProximo: 100,
+            ouro: 50,
+            inventario: [],
+            arma: { nome: "Punhos", ataque: 5 },
+            armadura: { nome: "Roupas", defesa: 2 }
+        };
+
+        let inimigos = [
+            { nome: "Goblin", vida: 30, ataque: 8, exp: 25, ouro: 15 },
+            { nome: "Orc", vida: 50, ataque: 12, exp: 40, ouro: 25 },
+            { nome: "Troll", vida: 80, ataque: 18, exp: 60, ouro: 40 },
+            { nome: "Dragão", vida: 150, ataque: 30, exp: 150, ouro: 100 }
+        ];
+
+        let itensLoja = [
+            { nome: "Poção de Vida", tipo: "consumivel", efeito: "vida", valor: 30, preco: 20 },
+            { nome: "Poção de Mana", tipo: "consumivel", efeito: "mana", valor: 25, preco: 15 },
+            { nome: "Espada de Ferro", tipo: "arma", ataque: 15, preco: 100 },
+            { nome: "Armadura de Couro", tipo: "armadura", defesa: 8, preco: 80 },
+            { nome: "Espada Élfica", tipo: "arma", ataque: 25, preco: 250 },
+            { nome: "Armadura de Ferro", tipo: "armadura", defesa: 15, preco: 200 }
+        ];
+
+        let areas = [
+            { nome: "Floresta Sombria", nivel: 1, inimigos: [0, 1] },
+            { nome: "Caverna dos Trolls", nivel: 3, inimigos: [1, 2] },
+            { nome: "Covil do Dragão", nivel: 5, inimigos: [2, 3] }
+        ];
+
+        function iniciarJogo() {
+            console.clear();
+            console.log("🎮 ========== ADVENTURE QUEST ========== 🎮");
+            console.log("");
+            jogador.nome = prompt("Qual é o seu nome, aventureiro?") || "Herói";
+            console.log(`🌟 Bem-vindo, ${jogador.nome}! Sua aventura começou!`);
+            console.log("");
+            console.log("📋 COMANDOS DISPONÍVEIS:");
+            console.log("• status() - Ver suas estatísticas");
+            console.log("• explorar() - Explorar áreas");
+            console.log("• lutar() - Procurar inimigos para batalhar");
+            console.log("• descansar() - Recuperar vida e mana");
+            console.log("• loja() - Visitar a loja");
+            console.log("• inventario() - Ver seus itens");
+            console.log("• ajuda() - Ver comandos novamente");
+            console.log("");
+            status();
+        }
+
+        function status() {
+            console.log("📊 ========== STATUS DO JOGADOR ==========");
+            console.log(`👤 Nome: ${jogador.nome}`);
+            console.log(`⭐ Nível: ${jogador.nivel}`);
+            console.log(`❤️ Vida: ${jogador.vida}/${jogador.vidaMax}`);
+            console.log(`🔮 Mana: ${jogador.mana}/${jogador.manaMax}`);
+            console.log(`💪 Força: ${jogador.forca}`);
+            console.log(`🛡️ Defesa: ${jogador.defesa}`);
+            console.log(`📈 EXP: ${jogador.experiencia}/${jogador.expProximo}`);
+            console.log(`💰 Ouro: ${jogador.ouro}`);
+            console.log(`⚔️ Arma: ${jogador.arma.nome} (Ataque: ${jogador.arma.ataque})`);
+            console.log(`🛡️ Armadura: ${jogador.armadura.nome} (Defesa: ${jogador.armadura.defesa})`);
+            console.log("==========================================");
+        }
+
+        function explorar() {
+            console.log("🗺️ ========== ÁREAS DISPONÍVEIS ==========");
+            areas.forEach((area, i) => {
+                console.log(`${i + 1}. ${area.nome} (Nível recomendado: ${area.nivel})`);
+            });
+            
+            let escolha = prompt("Escolha uma área (1-3):");
+            let areaEscolhida = areas[escolha - 1];
+            
+            if (!areaEscolhida) {
+                console.log("❌ Área inválida!");
+                return;
+            }
+            
+            console.log(`🚶 Explorando ${areaEscolhida.nome}...`);
+            
+            let evento = Math.random();
+            if (evento < 0.6) {
+                let inimigoIndex = areaEscolhida.inimigos[Math.floor(Math.random() * areaEscolhida.inimigos.length)];
+                let inimigo = { ...inimigos[inimigoIndex] };
+                console.log(`⚔️ Um ${inimigo.nome} apareceu!`);
+                batalhar(inimigo);
+            } else if (evento < 0.8) {
+                let ouro = Math.floor(Math.random() * 30) + 10;
+                jogador.ouro += ouro;
+                console.log(`💰 Você encontrou ${ouro} moedas de ouro!`);
+            } else {
+                console.log("🌿 Você explorou a área mas não encontrou nada interessante.");
+            }
+        }
+
+        function lutar() {
+            let inimigoAleatorio = Math.floor(Math.random() * inimigos.length);
+            let inimigo = { ...inimigos[inimigoAleatorio] };
+            console.log(`⚔️ Um ${inimigo.nome} selvagem apareceu!`);
+            batalhar(inimigo);
+        }
+
+        function batalhar(inimigo) {
+            console.log(`🥊 ========== BATALHA ==========`);
+            console.log(`${jogador.nome} VS ${inimigo.nome}`);
+            
+            while (inimigo.vida > 0 && jogador.vida > 0) {
+                // Turno do jogador
+                let ataqueJogador = jogador.forca + jogador.arma.ataque + Math.floor(Math.random() * 10);
+                inimigo.vida -= Math.max(1, ataqueJogador - 2);
+                console.log(`⚔️ ${jogador.nome} atacou ${inimigo.nome} causando ${ataqueJogador} de dano!`);
+                
+                if (inimigo.vida <= 0) {
+                    console.log(`🎉 ${inimigo.nome} foi derrotado!`);
+                    let expGanha = inimigo.exp;
+                    let ouroGanho = inimigo.ouro;
+                    jogador.experiencia += expGanha;
+                    jogador.ouro += ouroGanho;
+                    
+                    console.log(`📈 +${expGanha} EXP`);
+                    console.log(`💰 +${ouroGanho} ouro`);
+                    
+                    verificarNivel();
+                    break;
+                }
+                
+                // Turno do inimigo
+                let ataqueInimigo = Math.max(1, inimigo.ataque - (jogador.defesa + jogador.armadura.defesa));
+                jogador.vida -= ataqueInimigo;
+                console.log(`💢 ${inimigo.nome} atacou você causando ${ataqueInimigo} de dano!`);
+                console.log(`❤️ Sua vida: ${jogador.vida}/${jogador.vidaMax}`);
+                
+                if (jogador.vida <= 0) {
+                    console.log("💀 Você foi derrotado! Descanse e tente novamente.");
+                    jogador.vida = 1;
+                    break;
+                }
+            }
+        }
+
+        function verificarNivel() {
+            if (jogador.experiencia >= jogador.expProximo) {
+                jogador.nivel++;
+                jogador.experiencia -= jogador.expProximo;
+                jogador.expProximo = Math.floor(jogador.expProximo * 1.5);
+                
+                let vidaAumento = Math.floor(Math.random() * 20) + 15;
+                let manaAumento = Math.floor(Math.random() * 15) + 10;
+                let forcaAumento = Math.floor(Math.random() * 5) + 2;
+                let defesaAumento = Math.floor(Math.random() * 3) + 1;
+                
+                jogador.vidaMax += vidaAumento;
+                jogador.vida = jogador.vidaMax;
+                jogador.manaMax += manaAumento;
+                jogador.mana = jogador.manaMax;
+                jogador.forca += forcaAumento;
+                jogador.defesa += defesaAumento;
+                
+                console.log("🎊 ========== LEVEL UP! ==========");
+                console.log(`⭐ Nível ${jogador.nivel - 1} → ${jogador.nivel}`);
+                console.log(`❤️ Vida: +${vidaAumento}`);
+                console.log(`🔮 Mana: +${manaAumento}`);
+                console.log(`💪 Força: +${forcaAumento}`);
+                console.log(`🛡️ Defesa: +${defesaAumento}`);
+                console.log("=================================");
+            }
+        }
+
+        function descansar() {
+            if (jogador.vida === jogador.vidaMax && jogador.mana === jogador.manaMax) {
+                console.log("😴 Você já está com vida e mana completas!");
+                return;
+            }
+            
+            jogador.vida = Math.min(jogador.vidaMax, jogador.vida + Math.floor(jogador.vidaMax * 0.5));
+            jogador.mana = Math.min(jogador.manaMax, jogador.mana + Math.floor(jogador.manaMax * 0.5));
+            console.log("😴 Você descansou e recuperou vida e mana!");
+            console.log(`❤️ Vida: ${jogador.vida}/${jogador.vidaMax}`);
+            console.log(`🔮 Mana: ${jogador.mana}/${jogador.manaMax}`);
+        }
+
+        function loja() {
+            console.log("🏪 ========== LOJA DO MERCADOR ==========");
+            console.log(`💰 Seu ouro: ${jogador.ouro}`);
+            console.log("");
+            
+            itensLoja.forEach((item, i) => {
+                let descricao = "";
+                if (item.tipo === "consumivel") {
+                    descricao = `(+${item.valor} ${item.efeito})`;
+                } else if (item.tipo === "arma") {
+                    descricao = `(Ataque: ${item.ataque})`;
+                } else if (item.tipo === "armadura") {
+                    descricao = `(Defesa: ${item.defesa})`;
+                }
+                console.log(`${i + 1}. ${item.nome} ${descricao} - ${item.preco} ouro`);
+            });
+            
+            let escolha = prompt("Digite o número do item para comprar (ou 0 para sair):");
+            escolha = parseInt(escolha);
+            
+            if (escolha === 0) {
+                console.log("👋 Volte sempre!");
+                return;
+            }
+            
+            let item = itensLoja[escolha - 1];
+            if (!item) {
+                console.log("❌ Item inválido!");
+                return;
+            }
+            
+            if (jogador.ouro < item.preco) {
+                console.log("❌ Ouro insuficiente!");
+                return;
+            }
+            
+            jogador.ouro -= item.preco;
+            
+            if (item.tipo === "consumivel") {
+                jogador.inventario.push(item);
+                console.log(`✅ ${item.nome} adicionado ao inventário!`);
+            } else if (item.tipo === "arma") {
+                console.log(`⚔️ ${jogador.arma.nome} substituído por ${item.nome}!`);
+                jogador.arma = { nome: item.nome, ataque: item.ataque };
+            } else if (item.tipo === "armadura") {
+                console.log(`🛡️ ${jogador.armadura.nome} substituído por ${item.nome}!`);
+                jogador.armadura = { nome: item.nome, defesa: item.defesa };
+            }
+        }
+
+        function inventario() {
+            console.log("🎒 ========== INVENTÁRIO ==========");
+            if (jogador.inventario.length === 0) {
+                console.log("📦 Seu inventário está vazio!");
+                return;
+            }
+            
+            jogador.inventario.forEach((item, i) => {
+                console.log(`${i + 1}. ${item.nome} (+${item.valor} ${item.efeito})`);
+            });
+            
+            let escolha = prompt("Digite o número do item para usar (ou 0 para sair):");
+            escolha = parseInt(escolha);
+            
+            if (escolha === 0) return;
+            
+            let item = jogador.inventario[escolha - 1];
+            if (!item) {
+                console.log("❌ Item inválido!");
+                return;
+            }
+            
+            if (item.efeito === "vida") {
+                jogador.vida = Math.min(jogador.vidaMax, jogador.vida + item.valor);
+                console.log(`❤️ +${item.valor} vida! Vida atual: ${jogador.vida}/${jogador.vidaMax}`);
+            } else if (item.efeito === "mana") {
+                jogador.mana = Math.min(jogador.manaMax, jogador.mana + item.valor);
+                console.log(`🔮 +${item.valor} mana! Mana atual: ${jogador.mana}/${jogador.manaMax}`);
+            }
+            
+            jogador.inventario.splice(escolha - 1, 1);
+            console.log(`✅ ${item.nome} usado!`);
+        }
+
+        function ajuda() {
+            console.log("📋 ========== COMANDOS ==========");
+            console.log("• iniciarJogo() - Reiniciar o jogo");
+            console.log("• status() - Ver suas estatísticas");
+            console.log("• explorar() - Explorar áreas");
+            console.log("• lutar() - Procurar inimigos");
+            console.log("• descansar() - Recuperar vida e mana");
+            console.log("• loja() - Visitar a loja");
+            console.log("• inventario() - Ver e usar itens");
+            console.log("• ajuda() - Ver esta lista");
+            console.log("===============================");
+        }
+
+        // Inicialização automática
+        console.log("🎮 Adventure Quest carregado!");
+        console.log("Digite iniciarJogo() para começar sua aventura!");
+    </script>
+</body>
+</html>
